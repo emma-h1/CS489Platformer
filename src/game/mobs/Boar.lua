@@ -4,6 +4,8 @@ local Timer = require "libs.hump.timer"
 local Enemy = require "src.game.mobs.Enemy"
 local Hbox = require "src.game.Hbox"
 local Sounds = require "src.game.Sounds"
+local Tween = require "libs.tween"
+local DeathParticles = require "src.game.mobs.DeathParticles"
 
 -- Idle Animation Resources
 local idleSprite = love.graphics.newImage("graphics/mobs/boar/Idle-Sheet.png")
@@ -35,6 +37,8 @@ function Boar:init(type) Enemy:init() -- superclass const.
     self.hp = 20
     self.score = 200
     self.damage = 20
+
+    self.deathParticles = DeathParticles()
 
     self:setAnimation("idle",idleSprite, idleAnim)
     self:setAnimation("walk",walkSprite, walkAnim)
@@ -79,6 +83,15 @@ function Boar:update(dt, stage)
             end 
         end -- end if bottom collision & dir 
     end -- end if walking state
+
+    if self.tweenDamage then -- Mob was hit, so tween
+        self.tweenDamage:update(dt)
+    end
+
+    if self.deathParticles:isActive() then -- Update death particles if there are any
+        self.deathParticles:update(dt)
+    end
+
     Timer.update(dt) -- attention, Timer.update uses dot, and not :
     self.animations[self.state]:update(dt)
 end -- end function
@@ -93,10 +106,17 @@ function Boar:hit(damage, direction)
 
     if self.hp <= 0 then
         self.died = true
+        self.deathParticles:trigger(self.x, self.y)
     end
+
+    self.damageDone = damage -- Store damage to print in draw
+
+    self.damageY = self.y -- Set damage value location to where mob is
+    self.tweenDamage = Tween.new(1, self, {damageY = self.y - 15})
 
     Timer.after(1, function() self:endHit(direction) end)
     Timer.after(0.9, function() self.invincible = false end)
+    Timer.after(1, function() self.tweenDamage = false end)
 
 end
 

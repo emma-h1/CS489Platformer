@@ -26,7 +26,7 @@ function Stage:update(dt)
 
     for k=#self.mobs, 1, -1 do 
         self.mobs[k]:update(dt, self)
-        if self.mobs[k].died then
+        if self.mobs[k].died and not self.mobs[k].deathParticles:isActive() then -- Let death particles play for a while
             table.remove(self.mobs, k)
         end
     end
