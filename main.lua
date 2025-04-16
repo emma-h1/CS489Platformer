@@ -46,8 +46,13 @@ function love.keypressed(key)
         stagemanager:setStage(0)
     elseif key == "return" and gameState=="start" then
         gameState = "play"
-        stagemanager:setStage(1)
-
+        stagemanager:nextStage()
+    elseif key == "return" and gameState=="stageComplete" then
+        gameState = "play"
+        stagemanager:nextStage()
+        stagemanager:setCamera(camera) -- Refocus camera
+        local thisStage = stagemanager:currentStage()
+        player:nextStage(thisStage) -- Reset player stats for next stage
     else
         player:keypressed(key) 
     end
@@ -67,6 +72,11 @@ function love.update(dt)
         Sounds["game_over"]:play()
     end
 
+    -- Show stage complete if all  three gems are collectec
+    if player.gems >= 3 then
+        gameState = "stageComplete"
+    end
+
     if gameState == "play" then
         stagemanager:currentStage():update(dt)
         player:update(dt, stagemanager:currentStage())
@@ -79,6 +89,8 @@ function love.update(dt)
     elseif gameState == "start" then
 
     elseif gameState == "over" then
+
+    elseif gameState == "stageComplete" then
 
     end
 end
@@ -94,6 +106,8 @@ function love.draw()
         drawStartState()
     elseif gameState == "over" then
         drawGameOverState()
+    elseif gameState == "stageComplete" then
+        drawStageCompleteState()
     else --Error, should not happen
         love.graphics.setColor(1,1,0) -- Yellow
         love.graphics.printf("Error", 0,20,gameWidth,"center")
@@ -140,4 +154,14 @@ function drawGameOverState()
     love.graphics.printf("Total Score "..player.score,0,110,gameWidth,"center")
 
     love.graphics.printf("Press any key for Start Screen", 0,150,gameWidth,"center")
+end
+
+function drawStageCompleteState()
+    love.graphics.setColor(0.3,0.3,0.3) -- dark gray
+    stagemanager:currentStage():drawBg()
+    stagemanager:currentStage():draw()
+    player:draw() -- and the player sprite
+    love.graphics.setColor(1,1,0) -- Yellow
+    love.graphics.printf("Stage Complete", titleFont,0,20,gameWidth,"center")
+    love.graphics.printf("Press Enter to Continue to Next Stage",0,100,gameWidth,"center")
 end

@@ -66,7 +66,7 @@ function Player:nextStage(stage)
     self.x = stage.initialPlayerX
     self.y = stage.initialPlayerY
     
-    self.crystals = 0 
+    self.gems = 0 
     self.hp = math.min(100, self.hp+10)
 end
 
@@ -76,7 +76,7 @@ function Player:reset()
     self.lives = 3
     self.hp = 100 -- hit/health points for later
     self.coins = 0 -- coins collected
-    self.crystals = 0 -- crystals found
+    self.gems = 0 -- crystals found
     self.score = 0 -- score so far 
 end
 
