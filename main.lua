@@ -46,7 +46,7 @@ function love.keypressed(key)
         stagemanager:setStage(0)
     elseif key == "return" and gameState=="start" then
         gameState = "play"
-        stagemanager:setStage(1)
+        stagemanager:setStage(2)
 
         --stagemanager:nextStage()
     elseif key == "return" and gameState=="stageComplete" then
@@ -73,7 +73,11 @@ function love.update(dt)
         stagemanager:currentStage():stopMusic()
         Sounds["game_over"]:play()
     end
+    if gameState == "stageComplete" and stagemanager.index == 2 then
+        gameState = "start"
+        stagemanager:setStage(0)
 
+    end
     -- Show stage complete if all  three gems are collectec
     if player.gems >= 3 then
         gameState = "stageComplete"
